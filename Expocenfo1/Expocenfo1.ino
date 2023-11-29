@@ -1,8 +1,11 @@
 #include <Wire.h>
 #include "MAX30105.h"
 #include "heartRate.h"
+#include <Adafruit_NeoPixel.h>
 
 MAX30105 particleSensor;
+
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(1, 2, NEO_GRB + NEO_KHZ800);
 
 const byte RATE_SIZE = 4;
 byte rates[RATE_SIZE];
@@ -16,6 +19,9 @@ void setup()
 {
   Serial.begin(115200);
   Serial.println("Initializing...");
+  strip.begin();
+  strip.show();
+
 
   if (!particleSensor.begin(Wire, I2C_SPEED_FAST))
   {
@@ -31,6 +37,8 @@ void setup()
 
 void loop()
 {
+
+
   long irValue = particleSensor.getIR();
 
   if (checkForBeat(irValue) == true)
@@ -53,7 +61,7 @@ void loop()
   }
 
   // Imprimir datos cada medio minuto
-  if (millis() - lastPrintTime >= 30000)
+  if (millis() - lastPrintTime >= 15000)
   {
     if (irValue < 50000)
       Serial.print(" No finger?");
@@ -66,6 +74,8 @@ void loop()
       Serial.print(beatsPerMinute);
       Serial.print(", Avg BPM=");
       Serial.print(beatAvg);
+      strip.setPixelColor(0, strip.Color(255, 0, 0));
+      strip.show();
     }
     else if (beatsPerMinute >= 30 && beatsPerMinute <= 120)
     {
@@ -76,6 +86,8 @@ void loop()
       Serial.print(beatsPerMinute);
       Serial.print(", Avg BPM=");
       Serial.print(beatAvg);
+      strip.setPixelColor(0, strip.Color(0, 255, 0));
+      strip.show();
     }
     else
     {
@@ -86,6 +98,9 @@ void loop()
       Serial.print(beatsPerMinute);
       Serial.print(", Avg BPM=");
       Serial.print(beatAvg);
+      strip.setPixelColor(0, strip.Color(255, 255, 0));  // Establece el color a amarillo
+      strip.show();
+
     }
 
     Serial.println();
